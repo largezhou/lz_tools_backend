@@ -44,11 +44,11 @@ func New() *cli.Command {
 				return nil
 			}
 
-			var upRegexp, _ = regexp.Compile("(-- __UP__[\\s\\S]*?)-- __DOWN__")
+			upRegexp, _ := regexp.Compile("(-- __UP__[\\s\\S]*?)-- __DOWN__")
 			err = db.Transaction(func(tx *gorm.DB) error {
-				var newMigrations []*migration
+				var newMigrations []*Migration
 				for _, filename := range newFilenames {
-					newMigrations = append(newMigrations, &migration{
+					newMigrations = append(newMigrations, &Migration{
 						File:  filename,
 						Batch: maxBatch + 1,
 					})
@@ -69,7 +69,7 @@ func New() *cli.Command {
 					}
 
 					fmt.Printf("正在迁移 %s\n", filename)
-					fmt.Println(string(matches[1]))
+
 					if result := tx.Exec(string(matches[1])); result.Error != nil {
 						return result.Error
 					}
@@ -82,27 +82,23 @@ func New() *cli.Command {
 				return nil
 			})
 
-			if err != nil {
-				return err
-			}
-
-			return nil
+			return err
 		},
 	}
 }
 
-type migration struct {
+type Migration struct {
 	model.Model
 	File  string `gorm:"type:varchar(200);unique;not null"`
 	Batch uint   `gorm:"type:integer;not null"`
 }
 
 func createMigrationTableIfNeeded() error {
-	if db.Migrator().HasTable(&migration{}) {
+	if db.Migrator().HasTable(&Migration{}) {
 		return nil
 	}
 
-	if err := db.Migrator().CreateTable(&migration{}); err != nil {
+	if err := db.Migrator().CreateTable(&Migration{}); err != nil {
 		return err
 	}
 
@@ -129,12 +125,12 @@ func getMigrationFilenames() ([]string, error) {
 	return filenames, nil
 }
 
-func getExistsMigrationInfo() (map[string]migration, uint) {
-	msMap := make(map[string]migration)
+func getExistsMigrationInfo() (map[string]Migration, uint) {
+	msMap := make(map[string]Migration)
 	var maxBatch uint = 0
 
-	var ms []migration
-	db.Model(&migration{}).Select("file, batch").Find(&ms)
+	var ms []Migration
+	db.Model(&Migration{}).Select("file, batch").Find(&ms)
 	for _, m := range ms {
 		if m.Batch > maxBatch {
 			maxBatch = m.Batch
