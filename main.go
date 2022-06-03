@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/largezhou/gin_starter/app/api"
+	"github.com/largezhou/gin_starter/app/console"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +16,7 @@ import (
 	"github.com/largezhou/gin_starter/app/logger"
 	"go.uber.org/zap"
 
+	_ "github.com/largezhou/gin_starter/app/console"
 	_ "github.com/largezhou/gin_starter/app/model"
 )
 
@@ -22,6 +24,10 @@ var c = config.Config.App
 var r *gin.Engine
 
 func main() {
+	if console.RunInCli() {
+		return
+	}
+
 	defer helper.CallShutdownFunc()
 
 	r = InitServer()

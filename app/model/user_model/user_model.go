@@ -11,7 +11,3 @@ type User struct {
 	Nickname string
 	Avatar   string
 }
-
-func (User) TableName() string {
-	return "user"
-}

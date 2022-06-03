@@ -4,6 +4,7 @@ import (
 	"github.com/largezhou/gin_starter/app/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"net/url"
 	"strings"
 	"time"
@@ -15,8 +16,8 @@ var DB *gorm.DB
 
 type Model struct {
 	Id         uint      `gorm:"primaryKey"`
-	CreateTime time.Time `gorm:"type:datetime;autoCreateTime"`
-	UpdateTime time.Time `gorm:"type:datetime;autoUpdateTime "`
+	CreateTime time.Time `gorm:"type:datetime;autoCreateTime;not null"`
+	UpdateTime time.Time `gorm:"type:datetime;autoUpdateTime;not null"`
 }
 
 func init() {
@@ -28,6 +29,9 @@ func init() {
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: &SqlRecorderLogger{},
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
 	})
 	if err != nil {
 		panic(err)
