@@ -14,6 +14,8 @@ import (
 	"github.com/largezhou/gin_starter/app/helper"
 	"github.com/largezhou/gin_starter/app/logger"
 	"go.uber.org/zap"
+
+	_ "github.com/largezhou/gin_starter/app/model"
 )
 
 var c = config.Config.App

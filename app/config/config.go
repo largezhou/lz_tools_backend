@@ -9,20 +9,26 @@ import (
 )
 
 type config struct {
-	App app // 应用基础配置
-	Log log // 日志配置
+	App   app   // 应用基础配置
+	Log   log   // 日志配置
+	Mysql mysql // mysql 配置
 }
 
 type app struct {
-	Host  string // 监听 IP
-	Port  string // 监听 端口
-	Env   string // 环境
-	Debug bool   // 是否开启 debug
+	Host     string // 监听 IP
+	Port     string // 监听 端口
+	Env      string // 环境
+	Debug    bool   // 是否开启 debug
+	Timezone string // 时区
 }
 
 type log struct {
 	Level  string // 日志级别
 	Stdout bool   // 是否同时输出到终端
+}
+
+type mysql struct {
+	Dsn string // 连接
 }
 
 var Config config
