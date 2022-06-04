@@ -8,13 +8,13 @@ import (
 
 // Recovery panic 处理
 func Recovery(formatter func(*gin.Context, any)) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error("异常", zap.Any("app_error", err))
-				formatter(c, err)
+				logger.Error(ctx, "异常", zap.Any("app_error", err))
+				formatter(ctx, err)
 			}
 		}()
-		c.Next()
+		ctx.Next()
 	}
 }

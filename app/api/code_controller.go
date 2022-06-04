@@ -4,24 +4,28 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/largezhou/lz_tools_backend/app/model"
+	"github.com/largezhou/lz_tools_backend/app/model/user_model"
 	"github.com/largezhou/lz_tools_backend/app/wechat"
 )
 
-func getCode(c *gin.Context) {
-	ok(c, "https://www.baidu.com", "")
+func getCode(ctx *gin.Context) {
+	model.DB.WithContext(ctx).First(&user_model.User{})
+
+	ok(ctx, "https://www.baidu.com", "")
 }
 
-func getCodeList(c *gin.Context) {
-	ok(c, nil, "")
+func getCodeList(ctx *gin.Context) {
+	ok(ctx, nil, "")
 }
 
-func getWechatAuthUrl(c *gin.Context) {
+func getWechatAuthUrl(ctx *gin.Context) {
 	var req getWechatAuthUrlDto
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		if errors.As(err, &validator.ValidationErrors{}) {
-			fail(c, invalidParameter, err.Error())
+			fail(ctx, invalidParameter, err.Error())
 		} else {
-			fail(c, badRequest, "")
+			fail(ctx, badRequest, "")
 		}
 
 		return
@@ -33,5 +37,5 @@ func getWechatAuthUrl(c *gin.Context) {
 		"",
 	)
 
-	ok(c, gin.H{"url": url}, "")
+	ok(ctx, gin.H{"url": url}, "")
 }

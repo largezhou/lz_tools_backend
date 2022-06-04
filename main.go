@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/largezhou/lz_tools_backend/app/api"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/console"
 	"net/http"
 	"os"
@@ -17,20 +19,21 @@ import (
 	"go.uber.org/zap"
 
 	_ "github.com/largezhou/lz_tools_backend/app/console"
-	_ "github.com/largezhou/lz_tools_backend/app/model"
 )
 
 var c = config.Config.App
 var r *gin.Engine
 
 func main() {
+	ctx := context.WithValue(context.Background(), app_const.RequestIdKey, uuid.NewString())
+
 	if console.RunInCli() {
 		return
 	}
 
-	defer helper.CallShutdownFunc()
+	defer helper.CallShutdownFunc(ctx)
 
-	r = InitServer()
+	r = InitServer(ctx)
 	api.InitRouter(r)
 
 	srv := &http.Server{
@@ -39,7 +42,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Info("开始运行", zap.String("host", c.Host), zap.String("port", c.Port))
+		logger.Info(ctx, "开始运行", zap.String("host", c.Host), zap.String("port", c.Port))
 		if err := srv.ListenAndServe(); err != nil {
 			panic(err)
 		}
@@ -53,8 +56,8 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Error("服务关闭出错", zap.Error(err))
+		logger.Error(ctx, "服务关闭出错", zap.Error(err))
 	}
 
-	logger.Info("服务已关闭")
+	logger.Info(ctx, "服务已关闭")
 }

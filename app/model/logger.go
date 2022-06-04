@@ -13,11 +13,11 @@ type SqlRecorderLogger struct {
 }
 
 func (l SqlRecorderLogger) Trace(
-	_ context.Context,
+	ctx context.Context,
 	_ time.Time,
 	fc func() (sql string, rowsAffected int64),
 	err error,
 ) {
 	sql, rows := fc()
-	logger.Info("sql", zap.String("sql", sql), zap.Int64("rows", rows), zap.Error(err))
+	logger.Info(ctx,"sql", zap.String("sql", sql), zap.Int64("rows", rows), zap.Error(err))
 }

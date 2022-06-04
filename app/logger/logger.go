@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"context"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/config"
 	"github.com/largezhou/lz_tools_backend/app/helper"
 	"github.com/natefinch/lumberjack"
@@ -42,7 +44,7 @@ func init() {
 		zap.AddCaller(),
 	)
 
-	helper.RegisterShutdownFunc(func() {
+	helper.RegisterShutdownFunc(func(ctx context.Context) {
 		_ = Logger.Sync()
 	})
 }
@@ -78,26 +80,42 @@ func createEncodeConfig() zapcore.EncoderConfig {
 	}
 }
 
-func Debug(msg string, fields ...zap.Field) {
-	Logger.Debug(msg, fields...)
+func getRequestId(ctx context.Context) string {
+	if requestId, ok := ctx.Value(app_const.RequestIdKey).(string); ok {
+		return requestId
+	} else {
+		return ""
+	}
 }
 
-func Info(msg string, fields ...zap.Field) {
-	Logger.Info(msg, fields...)
+func getFields(ctx context.Context, fields []zap.Field) []zap.Field {
+	requestId := getRequestId(ctx)
+	if requestId != "" {
+		return append(fields, zap.String(app_const.RequestIdKey, requestId))
+	}
+	return fields
 }
 
-func Warn(msg string, fields ...zap.Field) {
-	Logger.Warn(msg, fields...)
+func Debug(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Debug(msg, getFields(ctx, fields)...)
 }
-func Error(msg string, fields ...zap.Field) {
-	Logger.Error(msg, fields...)
+
+func Info(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Info(msg, getFields(ctx, fields)...)
 }
-func DPanic(msg string, fields ...zap.Field) {
-	Logger.DPanic(msg, fields...)
+
+func Warn(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Warn(msg, getFields(ctx, fields)...)
 }
-func Panic(msg string, fields ...zap.Field) {
-	Logger.Panic(msg, fields...)
+func Error(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Error(msg, getFields(ctx, fields)...)
 }
-func Fatal(msg string, fields ...zap.Field) {
-	Logger.Fatal(msg, fields...)
+func DPanic(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.DPanic(msg, getFields(ctx, fields)...)
+}
+func Panic(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Panic(msg, getFields(ctx, fields)...)
+}
+func Fatal(ctx context.Context, msg string, fields ...zap.Field) {
+	Logger.Fatal(msg, getFields(ctx, fields)...)
 }

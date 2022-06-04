@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/config"
 	"github.com/largezhou/lz_tools_backend/app/middleware"
 	"net/http"
@@ -44,7 +43,7 @@ func getApiGroup(r *gin.Engine) *gin.RouterGroup {
 }
 
 // errorToJsonResponse 把 panic 处理成 json 数据
-func errorToJsonResponse(c *gin.Context, err any) {
+func errorToJsonResponse(ctx *gin.Context, err any) {
 	var msg string
 	fields := gin.H{}
 
@@ -55,28 +54,27 @@ func errorToJsonResponse(c *gin.Context, err any) {
 		msg = http.StatusText(http.StatusInternalServerError)
 	}
 
-	response(c, unknownErr, msg, nil, fields)
+	response(ctx, unknownErr, msg, nil, fields)
 }
 
-func ok(c *gin.Context, data interface{}, msg string) {
-	response(c, statusOk, msg, data, nil)
+func ok(ctx *gin.Context, data any, msg string) {
+	response(ctx, statusOk, msg, data, nil)
 }
 
-func fail(c *gin.Context, code int, msg string) {
-	response(c, code, msg, nil, nil)
+func fail(ctx *gin.Context, code int, msg string) {
+	response(ctx, code, msg, nil, nil)
 }
 
-func response(c *gin.Context, code int, msg string, data interface{}, fields gin.H) {
+func response(ctx *gin.Context, code int, msg string, data any, fields gin.H) {
 	resp := gin.H{
-		"code":                 code,
-		"msg":                  msg,
-		"data":                 data,
-		app_const.RequestIdKey: c.GetString(app_const.RequestIdKey),
+		"code": code,
+		"msg":  msg,
+		"data": data,
 	}
 
 	for k, v := range fields {
 		resp[k] = v
 	}
 
-	c.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, resp)
 }

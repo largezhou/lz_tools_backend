@@ -1,20 +1,23 @@
 package helper
 
 import (
+	"context"
 	"github.com/largezhou/lz_tools_backend/app/config"
 )
 
-var shutdownFuncList []func()
+type ShutdownFunc func(ctx context.Context)
+
+var shutdownFuncList []ShutdownFunc
 
 // RegisterShutdownFunc 注册一个服务关闭时的回调函数
-func RegisterShutdownFunc(f func()) {
+func RegisterShutdownFunc(f ShutdownFunc) {
 	shutdownFuncList = append(shutdownFuncList, f)
 }
 
 // CallShutdownFunc 服务关闭时，执行所有回调函数
-func CallShutdownFunc() {
+func CallShutdownFunc(ctx context.Context) {
 	for _, f := range shutdownFuncList {
-		f()
+		f(ctx)
 	}
 }
 

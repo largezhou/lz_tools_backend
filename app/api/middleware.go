@@ -29,7 +29,7 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
+		PayloadFunc: func(data any) jwt.MapClaims {
 			if user, ok := data.(*user_model.User); ok {
 				return jwt.MapClaims{
 					identityKey: user.Uuid,
@@ -37,25 +37,25 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 			}
 			return jwt.MapClaims{}
 		},
-		IdentityHandler: func(c *gin.Context) interface{} {
-			claims := jwt.ExtractClaims(c)
+		IdentityHandler: func(ctx *gin.Context) any {
+			claims := jwt.ExtractClaims(ctx)
 			uuid := claims[identityKey].(string)
-			return user_model.FindByUuid(uuid)
+			return user_model.FindByUuid(ctx, uuid)
 		},
-		Authenticator: func(c *gin.Context) (interface{}, error) {
+		Authenticator: func(ctx *gin.Context) (any, error) {
 			var dto loginDto
-			if err := c.ShouldBind(&dto); err != nil {
+			if err := ctx.ShouldBind(&dto); err != nil {
 				return nil, err
 			}
 			res, err := wechat.OaOauth.GetUserAccessToken(dto.Code)
 			if err != nil {
-				logger.Error("获取 access_token 失败", zap.Error(err))
+				logger.Error(ctx, "获取 access_token 失败", zap.Error(err))
 				return nil, err
 			}
 
 			userInfo, err := wechat.OaOauth.GetUserInfo(res.AccessToken, res.OpenID, "")
 			if err != nil {
-				logger.Error("获取微信用户信息失败", zap.Error(err))
+				logger.Error(ctx, "获取微信用户信息失败", zap.Error(err))
 				return nil, err
 			}
 
@@ -65,31 +65,31 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 				Avatar:   userInfo.HeadImgURL,
 				Nickname: userInfo.Nickname,
 			}
-			if err := user_model.UpdateOrCreateUserByUserInfo(user); err != nil {
+			if err := user_model.UpdateOrCreateUserByUserInfo(ctx, user); err != nil {
 				return nil, err
 			}
 
 			return user, nil
 		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
+		Authorizator: func(data any, ctx *gin.Context) bool {
 			if user, ok := data.(*user_model.User); ok && user != nil {
 				return true
 			}
 
 			return false
 		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			logger.Info("登录失败", zap.Int("code", code), zap.String("msg", message))
+		Unauthorized: func(ctx *gin.Context, code int, message string) {
+			logger.Info(ctx, "登录失败", zap.Int("code", code), zap.String("msg", message))
 			msg := ""
 			if cfg.Debug {
 				msg = message
 			} else {
 				msg = "登录失败"
 			}
-			fail(c, authFail, msg)
+			fail(ctx, authFail, msg)
 		},
-		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
-			ok(c, gin.H{
+		LoginResponse: func(ctx *gin.Context, code int, token string, expire time.Time) {
+			ok(ctx, gin.H{
 				"token":  token,
 				"expire": expire.Format(time.RFC3339),
 			}, "")
