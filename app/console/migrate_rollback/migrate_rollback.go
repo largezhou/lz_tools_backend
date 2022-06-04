@@ -2,8 +2,8 @@ package migrate_rollback
 
 import (
 	"fmt"
-	"github.com/largezhou/gin_starter/app/console/migrate_install"
-	"github.com/largezhou/gin_starter/app/model"
+	"github.com/largezhou/lz_tools_backend/app/console/migrate_install"
+	"github.com/largezhou/lz_tools_backend/app/model"
 	"github.com/urfave/cli/v2"
 	"gorm.io/gorm"
 	"io/ioutil"

@@ -1,8 +1,8 @@
 package logger
 
 import (
-	"github.com/largezhou/gin_starter/app/config"
-	"github.com/largezhou/gin_starter/app/helper"
+	"github.com/largezhou/lz_tools_backend/app/config"
+	"github.com/largezhou/lz_tools_backend/app/helper"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

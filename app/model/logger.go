@@ -2,7 +2,7 @@ package model
 
 import (
 	"context"
-	"github.com/largezhou/gin_starter/app/logger"
+	"github.com/largezhou/lz_tools_backend/app/logger"
 	"go.uber.org/zap"
 	gormLogger "gorm.io/gorm/logger"
 	"time"

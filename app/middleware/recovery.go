@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/largezhou/gin_starter/app/logger"
+	"github.com/largezhou/lz_tools_backend/app/logger"
 	"go.uber.org/zap"
 )
 

@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/largezhou/gin_starter/app/logger"
-	"github.com/largezhou/gin_starter/app/middleware"
+	"github.com/largezhou/lz_tools_backend/app/logger"
+	"github.com/largezhou/lz_tools_backend/app/middleware"
 )
 
 func InitServer() *gin.Engine {

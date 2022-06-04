@@ -3,28 +3,44 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/largezhou/gin_starter/app/app_const"
-	"github.com/largezhou/gin_starter/app/config"
-	"github.com/largezhou/gin_starter/app/middleware"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
+	"github.com/largezhou/lz_tools_backend/app/config"
+	"github.com/largezhou/lz_tools_backend/app/middleware"
 	"net/http"
 	"runtime/debug"
 )
 
 const (
-	statusOk   = 0
-	unknownErr = 50000
-	authFail   = 40001
+	statusOk         = 0
+	unknownErr       = 50000
+	badRequest       = 40000
+	authFail         = 40001
+	invalidParameter = 40022
 )
 
 func InitRouter(r *gin.Engine) {
-	g := r.Group("/api").
-		Use(
-			middleware.Recovery(errorToJsonResponse),
-			middleware.ApiAuth(),
-		)
+	commonMiddlewares := []gin.HandlerFunc{
+		middleware.Cors(getApiGroup(r)),
+		middleware.Recovery(errorToJsonResponse),
+	}
 
-	g.POST("/get-code", GetCode)
-	g.POST("/get-code-list", GetCodeList)
+	{
+		g := getApiGroup(r).Use(commonMiddlewares...)
+
+		g.POST("/login", getJwtMiddleware().LoginHandler)
+		g.POST("/get-wechat-auth-url", getWechatAuthUrl)
+	}
+
+	{
+		g := getApiGroup(r).Use(commonMiddlewares...).Use(getJwtMiddleware().MiddlewareFunc())
+
+		g.POST("/get-code", getCode)
+		g.POST("/get-code-list", getCodeList)
+	}
+}
+
+func getApiGroup(r *gin.Engine) *gin.RouterGroup {
+	return r.Group("/api")
 }
 
 // errorToJsonResponse 把 panic 处理成 json 数据

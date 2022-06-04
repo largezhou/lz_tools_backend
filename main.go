@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/largezhou/gin_starter/app/api"
-	"github.com/largezhou/gin_starter/app/console"
+	"github.com/largezhou/lz_tools_backend/app/api"
+	"github.com/largezhou/lz_tools_backend/app/console"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/largezhou/gin_starter/app/config"
-	"github.com/largezhou/gin_starter/app/helper"
-	"github.com/largezhou/gin_starter/app/logger"
+	"github.com/largezhou/lz_tools_backend/app/config"
+	"github.com/largezhou/lz_tools_backend/app/helper"
+	"github.com/largezhou/lz_tools_backend/app/logger"
 	"go.uber.org/zap"
 
-	_ "github.com/largezhou/gin_starter/app/console"
-	_ "github.com/largezhou/gin_starter/app/model"
+	_ "github.com/largezhou/lz_tools_backend/app/console"
+	_ "github.com/largezhou/lz_tools_backend/app/model"
 )
 
 var c = config.Config.App

@@ -1,9 +1,9 @@
 package console
 
 import (
-	"github.com/largezhou/gin_starter/app/console/make_migration"
-	"github.com/largezhou/gin_starter/app/console/migrate_install"
-	"github.com/largezhou/gin_starter/app/console/migrate_rollback"
+	"github.com/largezhou/lz_tools_backend/app/console/make_migration"
+	"github.com/largezhou/lz_tools_backend/app/console/migrate_install"
+	"github.com/largezhou/lz_tools_backend/app/console/migrate_rollback"
 	"github.com/urfave/cli/v2"
 )
 

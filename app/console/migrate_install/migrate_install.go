@@ -2,7 +2,7 @@ package migrate_install
 
 import (
 	"fmt"
-	"github.com/largezhou/gin_starter/app/model"
+	"github.com/largezhou/lz_tools_backend/app/model"
 	"github.com/urfave/cli/v2"
 	"gorm.io/gorm"
 	"io/fs"

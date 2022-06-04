@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/largezhou/gin_starter/app/config"
+	"github.com/largezhou/lz_tools_backend/app/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"

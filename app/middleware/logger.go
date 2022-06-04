@@ -3,8 +3,8 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/largezhou/gin_starter/app/app_const"
-	"github.com/largezhou/gin_starter/app/logger"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
+	"github.com/largezhou/lz_tools_backend/app/logger"
 	"go.uber.org/zap"
 	"time"
 )

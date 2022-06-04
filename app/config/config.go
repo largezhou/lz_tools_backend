@@ -9,9 +9,10 @@ import (
 )
 
 type config struct {
-	App   app   // 应用基础配置
-	Log   log   // 日志配置
-	Mysql mysql // mysql 配置
+	App    app    // 应用基础配置
+	Log    log    // 日志配置
+	Mysql  mysql  // mysql 配置
+	Wechat wechat // 微信配置
 }
 
 type app struct {
@@ -20,6 +21,7 @@ type app struct {
 	Env      string // 环境
 	Debug    bool   // 是否开启 debug
 	Timezone string // 时区
+	Key      string // 加密密钥
 }
 
 type log struct {
@@ -29,6 +31,16 @@ type log struct {
 
 type mysql struct {
 	Dsn string // 连接
+}
+
+type wechat struct {
+	OfficialAccount officialAccount // 公众号
+}
+
+type officialAccount struct {
+	AppId     string
+	AppSecret string
+	Token     string
 }
 
 var Config config
