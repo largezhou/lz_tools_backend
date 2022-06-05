@@ -3,7 +3,10 @@ package api
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
+	"github.com/largezhou/lz_tools_backend/app/app_error"
 	"github.com/largezhou/lz_tools_backend/app/config"
+	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/helper"
 	"github.com/largezhou/lz_tools_backend/app/logger"
 	"github.com/largezhou/lz_tools_backend/app/model/user_model"
@@ -26,24 +29,24 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "api",
 		Key:         []byte(cfg.Key),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Timeout:     24 * 30 * time.Hour,
+		MaxRefresh:  24 * 60 * time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data any) jwt.MapClaims {
 			if user, ok := data.(*user_model.User); ok {
 				return jwt.MapClaims{
-					identityKey: user.Uuid,
+					identityKey: user.Id,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(ctx *gin.Context) any {
 			claims := jwt.ExtractClaims(ctx)
-			uuid := claims[identityKey].(string)
-			return user_model.FindByUuid(ctx, uuid)
+			id := uint(claims[identityKey].(float64))
+			return user_model.FindById(ctx, id)
 		},
 		Authenticator: func(ctx *gin.Context) (any, error) {
-			var dto loginDto
+			var dto code_dto.LoginDto
 			if err := ctx.ShouldBind(&dto); err != nil {
 				return nil, err
 			}
@@ -73,6 +76,7 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 		},
 		Authorizator: func(data any, ctx *gin.Context) bool {
 			if user, ok := data.(*user_model.User); ok && user != nil {
+				ctx.Set(app_const.AuthUserKey, user)
 				return true
 			}
 
@@ -86,7 +90,7 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 			} else {
 				msg = "登录失败"
 			}
-			fail(ctx, authFail, msg)
+			fail(ctx, app_error.AuthFail, msg)
 		},
 		LoginResponse: func(ctx *gin.Context, code int, token string, expire time.Time) {
 			ok(ctx, gin.H{

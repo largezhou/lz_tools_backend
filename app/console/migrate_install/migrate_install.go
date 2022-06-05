@@ -73,8 +73,14 @@ func New() *cli.Command {
 
 					fmt.Printf("正在迁移 %s\n", filename)
 
-					if result := tx.Exec(string(matches[1])); result.Error != nil {
-						return result.Error
+					sqlList := strings.Split(string(matches[1]), ";")
+					for _, sql := range sqlList {
+						if strings.TrimSpace(sql) == "" {
+							continue
+						}
+						if result := tx.Exec(sql); result.Error != nil {
+							return result.Error
+						}
 					}
 				}
 

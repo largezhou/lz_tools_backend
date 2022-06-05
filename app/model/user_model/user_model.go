@@ -2,7 +2,6 @@ package user_model
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/largezhou/lz_tools_backend/app/logger"
 	"github.com/largezhou/lz_tools_backend/app/model"
 	"go.uber.org/zap"
@@ -10,30 +9,21 @@ import (
 
 type User struct {
 	model.Model
-	Uuid     string
-	OpenId   string
-	UnionId  string
-	Nickname string
-	Avatar   string
+	OpenId   string `json:"openId"`
+	UnionId  string `json:"unionId"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
 }
 
 // GetIdentityKey 获取授权时的查询用的 key
 func GetIdentityKey() string {
-	return "uuid"
+	return "id"
 }
 
-// Create 创建用户
-func Create(ctx context.Context, user *User) error {
-	user.Uuid = uuid.NewString()
-
-	result := model.DB.WithContext(ctx).Create(user)
-	return result.Error
-}
-
-// FindByUuid 通过 UUID 查找用户
-func FindByUuid(ctx context.Context, uuid string) *User {
+// FindById 通过 UUID 查找用户
+func FindById(ctx context.Context, id uint) *User {
 	var user *User
-	if result := model.DB.WithContext(ctx).First(&user, "uuid = ?", uuid); result.Error != nil {
+	if result := model.DB.WithContext(ctx).First(&user, "id = ?", id); result.Error != nil {
 		return nil
 	}
 	return user
@@ -52,5 +42,5 @@ func UpdateOrCreateUserByUserInfo(ctx context.Context, userInfo *User) error {
 		return nil
 	}
 
-	return Create(ctx, userInfo)
+	return model.DB.WithContext(ctx).Create(user).Error
 }

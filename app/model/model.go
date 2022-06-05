@@ -15,9 +15,9 @@ var appConfig = config.Config.App
 var DB *gorm.DB
 
 type Model struct {
-	Id         uint      `gorm:"primaryKey"`
-	CreateTime time.Time `gorm:"type:datetime;autoCreateTime;not null"`
-	UpdateTime time.Time `gorm:"type:datetime;autoUpdateTime;not null"`
+	Id         uint      `gorm:"primaryKey" json:"id"`
+	CreateTime time.Time `gorm:"type:datetime;autoCreateTime;not null" json:"createTime"`
+	UpdateTime time.Time `gorm:"type:datetime;autoUpdateTime;not null" json:"updateTime"`
 }
 
 func init() {

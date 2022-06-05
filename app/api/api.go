@@ -1,40 +1,41 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
+	"github.com/largezhou/lz_tools_backend/app/app_error"
 	"github.com/largezhou/lz_tools_backend/app/config"
 	"github.com/largezhou/lz_tools_backend/app/middleware"
+	"github.com/largezhou/lz_tools_backend/app/model/user_model"
 	"net/http"
 	"runtime/debug"
 )
 
-const (
-	statusOk         = 0
-	unknownErr       = 50000
-	badRequest       = 40000
-	authFail         = 40001
-	invalidParameter = 40022
-)
-
 func InitRouter(r *gin.Engine) {
+	codeController := NewCodeController()
+
 	commonMiddlewares := []gin.HandlerFunc{
 		middleware.Cors(getApiGroup(r)),
-		middleware.Recovery(errorToJsonResponse),
+		middleware.Recovery(failWithAny),
 	}
 
 	{
 		g := getApiGroup(r).Use(commonMiddlewares...)
 
 		g.POST("/login", getJwtMiddleware().LoginHandler)
-		g.POST("/get-wechat-auth-url", getWechatAuthUrl)
+		g.POST("/get-wechat-auth-url", codeController.GetWechatAuthUrl)
 	}
 
 	{
 		g := getApiGroup(r).Use(commonMiddlewares...).Use(getJwtMiddleware().MiddlewareFunc())
 
-		g.POST("/get-code", getCode)
-		g.POST("/get-code-list", getCodeList)
+		g.POST("/get-code", codeController.GetCode)
+		g.POST("/get-code-list", codeController.GetCodeList)
+		g.POST("/save-code", codeController.SaveCode)
+		g.POST("/delete-code", codeController.DeleteCode)
 	}
 }
 
@@ -42,8 +43,29 @@ func getApiGroup(r *gin.Engine) *gin.RouterGroup {
 	return r.Group("/api")
 }
 
-// errorToJsonResponse 把 panic 处理成 json 数据
-func errorToJsonResponse(ctx *gin.Context, err any) {
+func failWithAny(ctx *gin.Context, err any) {
+	realErr, ok := err.(error)
+	if ok {
+		failWithError(ctx, realErr)
+	} else {
+		handleDefaultError(ctx, err)
+	}
+}
+
+// failWithError 把 panic 处理成 json 数据
+func failWithError(ctx *gin.Context, err error) {
+	switch {
+	case errors.As(err, &validator.ValidationErrors{}):
+		fail(ctx, app_error.InvalidParameter, err.Error())
+	case errors.As(err, &app_error.Error{}):
+		e := err.(app_error.Error)
+		fail(ctx, e.Code, e.Msg)
+	default:
+		handleDefaultError(ctx, err)
+	}
+}
+
+func handleDefaultError(ctx *gin.Context, err any) {
 	var msg string
 	fields := gin.H{}
 
@@ -54,11 +76,11 @@ func errorToJsonResponse(ctx *gin.Context, err any) {
 		msg = http.StatusText(http.StatusInternalServerError)
 	}
 
-	response(ctx, unknownErr, msg, nil, fields)
+	response(ctx, app_error.UnknownErr, msg, nil, fields)
 }
 
 func ok(ctx *gin.Context, data any, msg string) {
-	response(ctx, statusOk, msg, data, nil)
+	response(ctx, app_error.StatusOk, msg, data, nil)
 }
 
 func fail(ctx *gin.Context, code int, msg string) {
@@ -77,4 +99,20 @@ func response(ctx *gin.Context, code int, msg string, data any, fields gin.H) {
 	}
 
 	ctx.JSON(http.StatusOK, resp)
+}
+
+// getAuthUser 获取已登录用户
+func getAuthUser(ctx *gin.Context) (*user_model.User, error) {
+	var user *user_model.User
+	userAny, ok := ctx.Get(app_const.AuthUserKey)
+	if !ok {
+		return user, fmt.Errorf("没有用户信息")
+	}
+
+	user, ok = userAny.(*user_model.User)
+	if !ok {
+		return user, fmt.Errorf("无法获取用户信息")
+	}
+
+	return user, nil
 }

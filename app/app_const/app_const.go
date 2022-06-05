@@ -7,4 +7,6 @@ const (
 	CliKey = "cli"
 	// RequestIdKey 请求 ID 的键名
 	RequestIdKey = "requestId"
+	// AuthUserKey ctx 中存储已登录用户的键
+	AuthUserKey = "user"
 )
