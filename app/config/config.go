@@ -13,6 +13,7 @@ type config struct {
 	Log    log    // 日志配置
 	Mysql  mysql  // mysql 配置
 	Wechat wechat // 微信配置
+	Redis  redis  // redis 配置
 }
 
 type app struct {
@@ -41,6 +42,12 @@ type officialAccount struct {
 	AppId     string
 	AppSecret string
 	Token     string
+}
+
+type redis struct {
+	Host     string
+	Password string
+	Db       int
 }
 
 var Config config
