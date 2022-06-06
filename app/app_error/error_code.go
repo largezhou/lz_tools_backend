@@ -3,6 +3,7 @@ package app_error
 const (
 	StatusOk         = 0
 	UnknownErr       = 50000
+	Found    = 30002
 	CommonError      = 40000
 	AuthFail         = 40001
 	ResourceNotFound = 40004

@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/app_error"
 	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/helper"
@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"mime/multipart"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -26,12 +28,30 @@ func NewCodeService() *CodeService {
 	return &CodeService{}
 }
 
+func getCodeGeoKey(id uint) string {
+	return app_const.CodeGeo + strconv.Itoa(int(id))
+}
+
 func (cs *CodeService) GetCodeList(
 	ctx context.Context,
 	userId uint,
 	dto code_dto.GetCodeListDto,
-) ([]*code_model.Code, error) {
+) ([]*code_dto.CodeListDto, error) {
 	codeList, _ := code_model.GetCodeByUserId(ctx, userId)
+	if dto.Lng != 0 && dto.Lat != 0 {
+		locList, err := redisService.GeoRadius(ctx, getCodeGeoKey(userId), dto.Lng, dto.Lat, &redis.GeoRadiusQuery{
+			Unit:     "m",
+			Radius:   1000,
+			WithDist: true,
+			Sort:     "ASC",
+			Count:    10,
+		}).Result()
+		if err != nil {
+			logger.Info(ctx, "查询坐标失败", zap.Error(err))
+		}
+
+		sort.Sort(NewCodeListSortable(codeList, locList))
+	}
 	return codeList, nil
 }
 
@@ -100,8 +120,8 @@ func (cs *CodeService) CreateCode(ctx context.Context, userId uint, dto code_dto
 }
 
 func (cs *CodeService) updateRedisGeo(ctx context.Context, code *code_model.Code) error {
-	_, err := redisService.GeoAdd(ctx, "code_geo", &redis.GeoLocation{
-		Name:      fmt.Sprintf("%d", code.Id),
+	_, err := redisService.GeoAdd(ctx, getCodeGeoKey(code.UserId), &redis.GeoLocation{
+		Name:      strconv.Itoa(int(code.UserId)),
 		Longitude: code.Lng,
 		Latitude:  code.Lat,
 	}).Result()
@@ -175,7 +195,9 @@ func (cs CodeService) DeleteCode(ctx context.Context, userId uint, codeId uint) 
 		if res := tx.Delete(&code); res.Error != nil {
 			return res.Error
 		}
-		if _, err := redisService.ZRem(ctx, "code_geo", code.Id).Result(); err != nil {
+		if _, err := redisService.
+			ZRem(ctx, getCodeGeoKey(userId), code.Id).
+			Result(); err != nil {
 			return err
 		}
 		return nil

@@ -10,3 +10,9 @@ const (
 	// AuthUserKey ctx 中存储已登录用户的键
 	AuthUserKey = "user"
 )
+
+// 缓存键
+const (
+	// CodeGeo 场所码坐标
+	CodeGeo = "code_geo:"
+)

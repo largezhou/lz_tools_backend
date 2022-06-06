@@ -32,7 +32,6 @@ func InitRouter(r *gin.Engine) {
 	{
 		g := getApiGroup(r).Use(commonMiddlewares...).Use(getJwtMiddleware().MiddlewareFunc())
 
-		g.POST("/get-code", codeController.GetCode)
 		g.POST("/get-code-list", codeController.GetCodeList)
 		g.POST("/save-code", codeController.SaveCode)
 		g.POST("/delete-code", codeController.DeleteCode)

@@ -6,8 +6,7 @@ import (
 	"github.com/largezhou/lz_tools_backend/app/dto"
 	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/logger"
-	"github.com/largezhou/lz_tools_backend/app/model"
-	"github.com/largezhou/lz_tools_backend/app/model/user_model"
+	"github.com/largezhou/lz_tools_backend/app/model/code_model"
 	"github.com/largezhou/lz_tools_backend/app/service"
 	"github.com/largezhou/lz_tools_backend/app/wechat"
 	"go.uber.org/zap"
@@ -24,12 +23,6 @@ func NewCodeController() *CodeController {
 	}
 }
 
-func (cc *CodeController) GetCode(ctx *gin.Context) {
-	model.DB.WithContext(ctx).First(&user_model.User{})
-
-	ok(ctx, "https://www.baidu.com", "")
-}
-
 func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 	var req code_dto.GetCodeListDto
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -39,6 +32,16 @@ func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 
 	user, _ := getAuthUser(ctx)
 	codeList, _ := cc.codeService.GetCodeList(ctx, user.Id, req)
+
+	if req.Lng != 0 && req.Lat != 0 && len(codeList) > 0 {
+		code := codeList[0]
+		if code.Dist >= 0 {
+			code_model.UpdateTimes(ctx, code.Id)
+			response(ctx, app_error.Found, "", code.Link, nil)
+			return
+		}
+	}
+
 	ok(ctx, codeList, "")
 }
 
@@ -74,11 +77,13 @@ func (cc CodeController) SaveCode(ctx *gin.Context) {
 		".jpeg": true,
 		".jpg":  true,
 	}
-	if _, ok := allowExt[filepath.Ext(file.Filename)]; !ok {
-		fail(ctx, app_error.InvalidParameter, "图片必须是 png，jpeg 或者 jpg 格式")
-		return
+	if file != nil {
+		if _, ok := allowExt[filepath.Ext(file.Filename)]; !ok {
+			fail(ctx, app_error.InvalidParameter, "图片必须是 png，jpeg 或者 jpg 格式")
+			return
+		}
+		req.File = file
 	}
-	req.File = file
 
 	user, _ := getAuthUser(ctx)
 	if err := cc.codeService.SaveCode(ctx, user.Id, req); err != nil {

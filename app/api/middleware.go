@@ -47,7 +47,7 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 		},
 		Authenticator: func(ctx *gin.Context) (any, error) {
 			var dto code_dto.LoginDto
-			if err := ctx.ShouldBind(&dto); err != nil {
+			if err := ctx.ShouldBindJSON(&dto); err != nil {
 				return nil, err
 			}
 			res, err := wechat.OaOauth.GetUserAccessToken(dto.Code)
