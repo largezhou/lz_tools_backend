@@ -68,11 +68,7 @@ func getJwtMiddleware() *jwt.GinJWTMiddleware {
 				Avatar:   userInfo.HeadImgURL,
 				Nickname: userInfo.Nickname,
 			}
-			if err := user_model.UpdateOrCreateUserByUserInfo(ctx, user); err != nil {
-				return nil, err
-			}
-
-			return user, nil
+			return user_model.UpdateOrCreateUserByUserInfo(ctx, user)
 		},
 		Authorizator: func(data any, ctx *gin.Context) bool {
 			if user, ok := data.(*user_model.User); ok && user != nil {

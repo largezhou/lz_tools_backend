@@ -2,9 +2,8 @@ package user_model
 
 import (
 	"context"
-	"github.com/largezhou/lz_tools_backend/app/logger"
 	"github.com/largezhou/lz_tools_backend/app/model"
-	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -30,17 +29,22 @@ func FindById(ctx context.Context, id uint) *User {
 }
 
 // UpdateOrCreateUserByUserInfo 通过用户信息中的 union_id 查找，或者创建用户
-func UpdateOrCreateUserByUserInfo(ctx context.Context, userInfo *User) error {
-	var user *User
+func UpdateOrCreateUserByUserInfo(ctx context.Context, userInfo *User) (*User, error) {
 	db := model.DB.WithContext(ctx)
-	// 查找到用户，则更新信息，否则新建用户
-	if result := db.First(&user, "union_id = ?", userInfo.UnionId); result.Error == nil {
-		if updateResult := db.Where("union_id = ?", userInfo.UnionId).Updates(userInfo); updateResult.Error != nil {
-			logger.Warn(ctx, "用户更新失败", zap.Error(updateResult.Error))
-		}
-		*userInfo = *user
-		return nil
+
+	var result *gorm.DB
+	result = db.Where("union_id = ?", userInfo.UnionId).Updates(userInfo)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected > 0 {
+		db.First(&userInfo, "union_id = ?", userInfo.UnionId)
+		return userInfo, nil
 	}
 
-	return model.DB.WithContext(ctx).Create(user).Error
+	if result = db.Create(&userInfo); result.Error != nil {
+		return nil, result.Error
+	}
+
+	return userInfo, result.Error
 }
