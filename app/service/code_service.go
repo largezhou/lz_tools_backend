@@ -38,10 +38,14 @@ func (cs *CodeService) GetCodeList(
 	dto code_dto.GetCodeListDto,
 ) ([]*code_dto.CodeListDto, error) {
 	codeList, _ := code_model.GetCodeByUserId(ctx, userId)
+	if len(codeList) == 0 {
+		return codeList, nil
+	}
+
 	if dto.Lng != 0 && dto.Lat != 0 {
 		locList, err := redisService.GeoRadius(ctx, getCodeGeoKey(userId), dto.Lng, dto.Lat, &redis.GeoRadiusQuery{
 			Unit:     "m",
-			Radius:   1000,
+			Radius:   app_const.DistRange,
 			WithDist: true,
 			Sort:     "ASC",
 			Count:    10,
@@ -50,8 +54,11 @@ func (cs *CodeService) GetCodeList(
 			logger.Info(ctx, "查询坐标失败", zap.Error(err))
 		}
 
-		sort.Sort(NewCodeListSortable(codeList, locList))
+		if len(locList) > 0 {
+			sort.Sort(NewCodeListSortable(codeList, locList))
+		}
 	}
+
 	return codeList, nil
 }
 
@@ -174,7 +181,9 @@ func (cs *CodeService) getQrcodeFromUploadedFile(ctx context.Context, fileHeader
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	link, err := helper.GetQrcodeFromFile(ctx, file)
 	if err != nil {

@@ -3,7 +3,7 @@ app:
   port: ${APP_PORT:8080}
   env: ${APP_ENV:production}
   debug: ${APP_DEBUG:false}
-  timezone: ${APP_TIMEZONE:Asia/Shanghai}
+  timezone: Asia/Shanghai
   key: ${APP_KEY:}
 
 log:

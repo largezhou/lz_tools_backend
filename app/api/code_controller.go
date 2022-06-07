@@ -6,7 +6,6 @@ import (
 	"github.com/largezhou/lz_tools_backend/app/dto"
 	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/logger"
-	"github.com/largezhou/lz_tools_backend/app/model/code_model"
 	"github.com/largezhou/lz_tools_backend/app/service"
 	"github.com/largezhou/lz_tools_backend/app/wechat"
 	"go.uber.org/zap"
@@ -32,15 +31,6 @@ func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 
 	user, _ := getAuthUser(ctx)
 	codeList, _ := cc.codeService.GetCodeList(ctx, user.Id, req)
-
-	if req.Lng != 0 && req.Lat != 0 && len(codeList) > 0 {
-		code := codeList[0]
-		if code.Dist >= 0 {
-			code_model.UpdateTimes(ctx, code.Id)
-			response(ctx, app_error.Found, "", code.Link, nil)
-			return
-		}
-	}
 
 	ok(ctx, codeList, "")
 }

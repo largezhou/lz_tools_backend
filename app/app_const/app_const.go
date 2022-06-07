@@ -9,6 +9,8 @@ const (
 	RequestIdKey = "requestId"
 	// AuthUserKey ctx 中存储已登录用户的键
 	AuthUserKey = "user"
+	// DistRange 定位范围，单位 m
+	DistRange = 1000
 )
 
 // 缓存键

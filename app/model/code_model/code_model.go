@@ -26,6 +26,7 @@ func GetCodeByUserId(ctx context.Context, userId uint) ([]*code_dto.CodeListDto,
 	var codeList []*code_dto.CodeListDto
 	result := model.DB.WithContext(ctx).
 		Model(&Code{}).
+		Select("*, -1 as dist").
 		Where("user_id = ?", userId).
 		Order("often desc, times desc, id desc").
 		Find(&codeList)
