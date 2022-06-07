@@ -33,7 +33,7 @@ func Logger() gin.HandlerFunc {
 			zap.String("clientIp", ctx.ClientIP()),
 			zap.String("path", ctx.Request.URL.Path),
 			zap.String("query", ctx.Request.URL.RawQuery),
-			zap.ByteString("data", rawData),
+			// zap.ByteString("data", rawData),
 		)
 
 		blw := &bodyLogWriter{

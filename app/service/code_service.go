@@ -128,7 +128,7 @@ func (cs *CodeService) CreateCode(ctx context.Context, userId uint, dto code_dto
 
 func (cs *CodeService) updateRedisGeo(ctx context.Context, code *code_model.Code) error {
 	_, err := redisService.GeoAdd(ctx, getCodeGeoKey(code.UserId), &redis.GeoLocation{
-		Name:      strconv.Itoa(int(code.UserId)),
+		Name:      strconv.Itoa(int(code.Id)),
 		Longitude: code.Lng,
 		Latitude:  code.Lat,
 	}).Result()

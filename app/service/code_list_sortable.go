@@ -35,13 +35,9 @@ func (c CodeListSortable) Less(i, j int) bool {
 	jLoc, jOk := c.LocMap[strconv.Itoa(int(c.CodeList[j].Id))]
 	if iOk {
 		c.CodeList[i].Dist = iLoc.Dist
-	} else {
-		c.CodeList[i].Dist = -1
 	}
 	if jOk {
 		c.CodeList[j].Dist = jLoc.Dist
-	} else {
-		c.CodeList[j].Dist = -1
 	}
 
 	// 都有位置信息，则距离小的在前面

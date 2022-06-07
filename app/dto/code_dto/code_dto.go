@@ -42,5 +42,5 @@ type CodeListDto struct {
 	Times      uint      `json:"times"`
 	Often      bool      `json:"often"`
 	Share      bool      `json:"share"`
-	Dist       float64   `json:"dist" gorm:"-"`
+	Dist       float64   `json:"dist"`
 }
