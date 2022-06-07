@@ -13,6 +13,8 @@ import (
 
 var c = config.Config.Log
 var Logger *zap.Logger
+// callerSkip 需要跳过的 堆栈 数，由于 logger 方法被包装了 1 层，所以需要跳过 1 层
+const callerSkip = 1
 
 var intLevelMap = map[string]zapcore.Level{
 	"debug":     zap.DebugLevel,
@@ -42,6 +44,7 @@ func init() {
 	Logger = zap.New(
 		zapcore.NewTee(cores...),
 		zap.AddCaller(),
+		zap.AddCallerSkip(callerSkip),
 	)
 
 	helper.RegisterShutdownFunc(func(ctx context.Context) {
