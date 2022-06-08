@@ -8,10 +8,7 @@ import (
 
 type User struct {
 	model.Model
-	OpenId   string `json:"openId"`
-	UnionId  string `json:"unionId"`
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
+	Username string `json:"nickname"`
 }
 
 // GetIdentityKey 获取授权时的查询用的 key
@@ -33,12 +30,12 @@ func UpdateOrCreateUserByUserInfo(ctx context.Context, userInfo *User) (*User, e
 	db := model.DB.WithContext(ctx)
 
 	var result *gorm.DB
-	result = db.Where("union_id = ?", userInfo.UnionId).Updates(userInfo)
+	result = db.Where("username = ?", userInfo.Username).Updates(userInfo)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	if result.RowsAffected > 0 {
-		db.First(&userInfo, "union_id = ?", userInfo.UnionId)
+		db.First(&userInfo, "username = ?", userInfo.Username)
 		return userInfo, nil
 	}
 

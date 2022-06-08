@@ -11,15 +11,13 @@ import (
 
 type Code struct {
 	model.Model
-	CopyFromId uint    `json:"copyFromId"`
-	UserId     uint    `json:"userId"`
-	Name       string  `json:"name"`
-	Lng        float64 `json:"lng"`
-	Lat        float64 `json:"lat"`
-	Link       string  `json:"link"`
-	Times      uint    `json:"times"`
-	Often      bool    `json:"often"`
-	Share      bool    `json:"share"`
+	UserId uint    `json:"userId"`
+	Name   string  `json:"name"`
+	Lng    float64 `json:"lng"`
+	Lat    float64 `json:"lat"`
+	Link   string  `json:"link"`
+	Times  uint    `json:"times"`
+	Often  bool    `json:"often"`
 }
 
 func GetCodeByUserId(ctx context.Context, userId uint) ([]*code_dto.CodeListDto, error) {

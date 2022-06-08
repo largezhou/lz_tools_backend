@@ -7,7 +7,6 @@ import (
 	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/logger"
 	"github.com/largezhou/lz_tools_backend/app/service"
-	"github.com/largezhou/lz_tools_backend/app/wechat"
 	"go.uber.org/zap"
 	"path/filepath"
 )
@@ -33,22 +32,6 @@ func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 	codeList, _ := cc.codeService.GetCodeList(ctx, user.Id, req)
 
 	ok(ctx, codeList, "")
-}
-
-func (cc *CodeController) GetWechatAuthUrl(ctx *gin.Context) {
-	var req code_dto.GetWechatAuthUrlDto
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		failWithError(ctx, err)
-		return
-	}
-
-	url, _ := wechat.OfficialAccount.GetOauth().GetRedirectURL(
-		req.Redirect,
-		"snsapi_userinfo",
-		"",
-	)
-
-	ok(ctx, gin.H{"url": url}, "")
 }
 
 func (cc CodeController) SaveCode(ctx *gin.Context) {

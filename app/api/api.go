@@ -17,20 +17,12 @@ import (
 func InitRouter(r *gin.Engine) {
 	codeController := NewCodeController()
 
-	commonMiddlewares := []gin.HandlerFunc{
-		middleware.Cors(getApiGroup(r)),
-		middleware.Recovery(failWithAny),
-	}
-
 	{
-		g := getApiGroup(r).Use(commonMiddlewares...)
-
-		g.POST("/login", getJwtMiddleware().LoginHandler)
-		g.POST("/get-wechat-auth-url", codeController.GetWechatAuthUrl)
-	}
-
-	{
-		g := getApiGroup(r).Use(commonMiddlewares...).Use(getJwtMiddleware().MiddlewareFunc())
+		g := getApiGroup(r).Use(
+			middleware.Cors(getApiGroup(r)),
+			middleware.Recovery(failWithAny),
+			UsernameAuth(),
+		)
 
 		g.POST("/get-code-list", codeController.GetCodeList)
 		g.POST("/save-code", codeController.SaveCode)

@@ -73,49 +73,28 @@ func (cs CodeService) SaveCode(ctx context.Context, userId uint, dto code_dto.Sa
 func (cs *CodeService) CreateCode(ctx context.Context, userId uint, dto code_dto.SaveCodeDto) error {
 	db := model.DB.WithContext(ctx)
 	var code *code_model.Code
-	if dto.CopyFromId > 0 {
-		var copyFrom *code_model.Code
-		if result := db.Where("id = ?", dto.CopyFromId).
-			Where("share = ?", true).
-			First(&copyFrom); result.Error != nil {
-			return helper.ModelNotFound(result.Error, "无法复制场所码")
-		}
-
-		code = &code_model.Code{
-			CopyFromId: dto.CopyFromId,
-			UserId:     userId,
-			Name:       copyFrom.Name,
-			Lng:        copyFrom.Lng,
-			Lat:        copyFrom.Lat,
-			Link:       copyFrom.Link,
-			Share:      false,
-		}
-	} else {
-		dto.Name = strings.TrimSpace(dto.Name)
-		if dto.Name == "" || dto.Lng <= 0 || dto.Lat <= 0 {
-			return app_error.New("场所名或经纬度不能为空")
-		}
-		if dto.File == nil {
-			return app_error.New("需要上传场所码文件")
-		}
-
-		link, err := cs.getQrcodeFromUploadedFile(ctx, dto.File)
-		if err != nil {
-			return err
-		}
-
-		code = &code_model.Code{
-			CopyFromId: dto.CopyFromId,
-			UserId:     userId,
-			Name:       dto.Name,
-			Lng:        dto.Lng,
-			Lat:        dto.Lat,
-			Link:       link,
-			Share:      dto.Share,
-		}
+	dto.Name = strings.TrimSpace(dto.Name)
+	if dto.Name == "" || dto.Lng <= 0 || dto.Lat <= 0 {
+		return app_error.New("场所名或经纬度不能为空")
+	}
+	if dto.File == nil {
+		return app_error.New("需要上传场所码文件")
 	}
 
-	err := db.Transaction(func(tx *gorm.DB) error {
+	link, err := cs.getQrcodeFromUploadedFile(ctx, dto.File)
+	if err != nil {
+		return err
+	}
+
+	code = &code_model.Code{
+		UserId: userId,
+		Name:   dto.Name,
+		Lng:    dto.Lng,
+		Lat:    dto.Lat,
+		Link:   link,
+	}
+
+	err = db.Transaction(func(tx *gorm.DB) error {
 		if result := tx.Create(&code); result.Error != nil {
 			return result.Error
 		}
@@ -152,7 +131,6 @@ func (cs *CodeService) UpdateCode(ctx context.Context, userId uint, dto code_dto
 	}
 
 	code.Name = dto.Name
-	code.Share = dto.Share
 	code.Often = dto.Often
 	code.Lng = dto.Lng
 	code.Lat = dto.Lat

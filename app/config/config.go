@@ -12,7 +12,6 @@ type config struct {
 	App    app    // 应用基础配置
 	Log    log    // 日志配置
 	Mysql  mysql  // mysql 配置
-	Wechat wechat // 微信配置
 	Redis  redis  // redis 配置
 }
 
@@ -32,16 +31,6 @@ type log struct {
 
 type mysql struct {
 	Dsn string // 连接
-}
-
-type wechat struct {
-	OfficialAccount officialAccount // 公众号
-}
-
-type officialAccount struct {
-	AppId     string
-	AppSecret string
-	Token     string
 }
 
 type redis struct {

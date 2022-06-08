@@ -13,12 +13,6 @@ log:
 mysql:
   dsn: ${MYSQL_DSN:user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True}
 
-wechat:
-  officialAccount:
-    appId: ${WECHAT_OA_APP_ID:xx}
-    appSecret: ${WECHAT_OA_APP_SECRET:yy}
-    token: ${WECHAT_OA_TOKEN:zz}
-
 redis:
   host: ${REDIS_HOST:127.0.0.1:6379}
   password: ${REDIS_PASSWORD:}
