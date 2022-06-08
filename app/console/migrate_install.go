@@ -1,10 +1,7 @@
-package migrate_install
+package console
 
 import (
-	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/model"
 	"github.com/urfave/cli/v2"
 	"gorm.io/gorm"
@@ -16,9 +13,7 @@ import (
 	"strings"
 )
 
-var db = model.DB.WithContext(context.WithValue(context.Background(), app_const.RequestIdKey, uuid.NewString()))
-
-func New() *cli.Command {
+func NewMigrateInstallCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "migrate:install",
 		Usage:     "使用迁移文件",

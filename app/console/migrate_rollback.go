@@ -1,12 +1,7 @@
-package migrate_rollback
+package console
 
 import (
-	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/largezhou/lz_tools_backend/app/app_const"
-	"github.com/largezhou/lz_tools_backend/app/console/migrate_install"
-	"github.com/largezhou/lz_tools_backend/app/model"
 	"github.com/urfave/cli/v2"
 	"gorm.io/gorm"
 	"io/ioutil"
@@ -14,9 +9,7 @@ import (
 	"regexp"
 )
 
-var db = model.DB.WithContext(context.WithValue(context.Background(), app_const.RequestIdKey, uuid.NewString()))
-
-func New() *cli.Command {
+func NewMigrateRollbackCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "migrate:rollback",
 		Usage:     "回滚迁移",
@@ -28,8 +21,8 @@ func New() *cli.Command {
 				return err
 			}
 
-			var ms []migrate_install.Migration
-			if result := db.Model(&migrate_install.Migration{}).
+			var ms []Migration
+			if result := db.Model(&Migration{}).
 				Where("batch = ?", maxBatch).
 				Order("file desc").
 				Find(&ms); result.Error != nil {
@@ -77,7 +70,7 @@ func New() *cli.Command {
 
 func getMaxBatch() (uint, error) {
 	var maxBatch uint
-	if result := db.Model(&migrate_install.Migration{}).
+	if result := db.Model(&Migration{}).
 		Select("max(batch)").
 		Scan(&maxBatch); result.Error != nil {
 		return 0, result.Error

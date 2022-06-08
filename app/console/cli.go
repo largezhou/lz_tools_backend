@@ -1,7 +1,10 @@
 package console
 
 import (
+	"context"
+	"github.com/google/uuid"
 	"github.com/largezhou/lz_tools_backend/app/app_const"
+	"github.com/largezhou/lz_tools_backend/app/model"
 	"github.com/urfave/cli/v2"
 	"os"
 )
@@ -13,6 +16,8 @@ func RunInCli() bool {
 }
 
 var App *cli.App
+var ctx = context.WithValue(context.Background(), app_const.RequestIdKey, uuid.NewString())
+var db = model.DB.WithContext(ctx)
 
 func init() {
 	if !RunInCli() {

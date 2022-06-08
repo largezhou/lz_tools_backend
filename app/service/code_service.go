@@ -120,13 +120,13 @@ func (cs *CodeService) CreateCode(ctx context.Context, userId uint, dto code_dto
 			return result.Error
 		}
 
-		return cs.updateRedisGeo(ctx, code)
+		return cs.UpdateRedisGeo(ctx, code)
 	})
 
 	return err
 }
 
-func (cs *CodeService) updateRedisGeo(ctx context.Context, code *code_model.Code) error {
+func (cs *CodeService) UpdateRedisGeo(ctx context.Context, code *code_model.Code) error {
 	_, err := redisService.GeoAdd(ctx, getCodeGeoKey(code.UserId), &redis.GeoLocation{
 		Name:      strconv.Itoa(int(code.Id)),
 		Longitude: code.Lng,
@@ -170,7 +170,7 @@ func (cs *CodeService) UpdateCode(ctx context.Context, userId uint, dto code_dto
 			return result.Error
 		}
 
-		return cs.updateRedisGeo(ctx, code)
+		return cs.UpdateRedisGeo(ctx, code)
 	})
 
 	return err
@@ -213,4 +213,18 @@ func (cs CodeService) DeleteCode(ctx context.Context, userId uint, codeId uint) 
 	})
 
 	return err
+}
+
+func (cs CodeService) UpdateAllCodeGeo(ctx context.Context) error {
+	var codes []*code_model.Code
+	if res := model.DB.WithContext(ctx).Find(&codes); res.Error != nil {
+		return res.Error
+	}
+
+	for _, code := range codes {
+		if err := cs.UpdateRedisGeo(ctx, code); err != nil {
+			return err
+		}
+	}
+	return nil
 }

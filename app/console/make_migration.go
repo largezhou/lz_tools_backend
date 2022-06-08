@@ -1,4 +1,4 @@
-package make_migration
+package console
 
 import (
 	"errors"
@@ -13,11 +13,11 @@ var filepath string
 var err error
 
 func writeError() error {
-	os.Remove(filepath)
+	_ = os.Remove(filepath)
 	return err
 }
 
-func New() *cli.Command {
+func NewMakeMigrationCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "make:migration",
 		Usage:     "创建一个数据库迁移文件",
@@ -36,10 +36,12 @@ func New() *cli.Command {
 			if err != nil {
 				return err
 			}
-			defer file.Close()
+			defer func() {
+				_ = file.Close()
+			}()
 
 			var stubFile *os.File
-			stubFile, err = os.Open("./app/console/make_migration/stub/make_migration.stub")
+			stubFile, err = os.Open("./app/console/stub/make_migration.stub")
 			if err != nil {
 				return writeError()
 			}
