@@ -20,7 +20,7 @@ func InitRouter(r *gin.Engine) {
 	{
 		g := getApiGroup(r).Use(
 			middleware.Cors(getApiGroup(r)),
-			middleware.Recovery(failWithAny),
+			middleware.Recovery(failAny),
 			UsernameAuth(),
 		)
 
@@ -34,26 +34,29 @@ func getApiGroup(r *gin.Engine) *gin.RouterGroup {
 	return r.Group("/api")
 }
 
-func failWithAny(ctx *gin.Context, err any) {
+func failAny(ctx *gin.Context, err any) {
 	realErr, ok := err.(error)
 	if ok {
-		failWithError(ctx, realErr)
+		fail(ctx, realErr)
 	} else {
 		handleDefaultError(ctx, err)
 	}
 }
 
-// failWithError 把 panic 处理成 json 数据
-func failWithError(ctx *gin.Context, err error) {
+func fail(ctx *gin.Context, err error) {
 	switch {
 	case errors.As(err, &validator.ValidationErrors{}):
-		fail(ctx, app_error.InvalidParameter, err.Error())
+		response(ctx, app_error.InvalidParameter, err.Error(), nil, nil)
 	case errors.As(err, &app_error.Error{}):
 		e := err.(app_error.Error)
-		fail(ctx, e.Code, e.Msg)
+		response(ctx, e.Code, e.Msg, nil, nil)
 	default:
 		handleDefaultError(ctx, err)
 	}
+}
+
+func failWith(ctx *gin.Context, code int, msg string) {
+	response(ctx, code, msg, nil, nil)
 }
 
 func handleDefaultError(ctx *gin.Context, err any) {
@@ -72,10 +75,6 @@ func handleDefaultError(ctx *gin.Context, err any) {
 
 func ok(ctx *gin.Context, data any, msg string) {
 	response(ctx, app_error.StatusOk, msg, data, nil)
-}
-
-func fail(ctx *gin.Context, code int, msg string) {
-	response(ctx, code, msg, nil, nil)
 }
 
 func response(ctx *gin.Context, code int, msg string, data any, fields gin.H) {

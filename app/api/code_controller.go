@@ -24,7 +24,7 @@ func NewCodeController() *CodeController {
 func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 	var req code_dto.GetCodeListDto
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		failWithError(ctx, err)
+		fail(ctx, err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func (cc *CodeController) GetCodeList(ctx *gin.Context) {
 func (cc CodeController) SaveCode(ctx *gin.Context) {
 	var req code_dto.SaveCodeDto
 	if err := ctx.ShouldBind(&req); err != nil {
-		failWithError(ctx, err)
+		fail(ctx, err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func (cc CodeController) SaveCode(ctx *gin.Context) {
 	}
 	if file != nil {
 		if _, ok := allowExt[filepath.Ext(file.Filename)]; !ok {
-			fail(ctx, app_error.InvalidParameter, "图片必须是 png，jpeg 或者 jpg 格式")
+			failWith(ctx, app_error.InvalidParameter, "图片必须是 png，jpeg 或者 jpg 格式")
 			return
 		}
 		req.File = file
@@ -60,7 +60,7 @@ func (cc CodeController) SaveCode(ctx *gin.Context) {
 
 	user, _ := getAuthUser(ctx)
 	if err := cc.codeService.SaveCode(ctx, user.Id, req); err != nil {
-		failWithError(ctx, err)
+		fail(ctx, err)
 		return
 	}
 
@@ -70,13 +70,13 @@ func (cc CodeController) SaveCode(ctx *gin.Context) {
 func (cc CodeController) DeleteCode(ctx *gin.Context) {
 	var req dto.IdDto
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		failWithError(ctx, err)
+		fail(ctx, err)
 		return
 	}
 
 	user, _ := getAuthUser(ctx)
 	if err := cc.codeService.DeleteCode(ctx, user.Id, req.Id); err != nil {
-		failWithError(ctx, err)
+		fail(ctx, err)
 		return
 	}
 

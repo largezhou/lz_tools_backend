@@ -14,13 +14,13 @@ func UsernameAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		username := ctx.GetHeader("Username")
 		if username == "" {
-			fail(ctx, app_error.AuthFail, "没有用户信息")
+			response(ctx, app_error.AuthFail, "没有用户信息", nil, nil)
 			ctx.Abort()
 			return
 		}
 
 		if len(username) < 3 || len(username) > 20 {
-			fail(ctx, app_error.InvalidParameter, "用户名长度为 3-20")
+			response(ctx, app_error.InvalidParameter, "用户名长度为 3-20", nil, nil)
 			ctx.Abort()
 			return
 		}
@@ -29,7 +29,7 @@ func UsernameAuth() gin.HandlerFunc {
 		var err error
 		if user, err = user_model.UpdateOrCreateUserByUserInfo(ctx, user); err != nil {
 			logger.Warn(ctx, "创建或更新用户失败", zap.Error(err))
-			failWithError(ctx, err)
+			fail(ctx, err)
 			ctx.Abort()
 			return
 		}
