@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/largezhou/lz_tools_backend/app/logger"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -24,8 +25,16 @@ func Logger() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 
-		rawData, _ := ctx.GetRawData()
-		ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rawData))
+		// 该类型特殊处理，因为可能有文件
+		var data zap.Field
+		if ctx.ContentType() != binding.MIMEMultipartPOSTForm {
+			rawData, _ := ctx.GetRawData()
+			ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rawData))
+			data = zap.ByteString("data", rawData)
+		} else {
+			form, _ := ctx.MultipartForm()
+			data = zap.Any("data", form)
+		}
 
 		logger.Info(
 			ctx,
@@ -33,7 +42,7 @@ func Logger() gin.HandlerFunc {
 			zap.String("clientIp", ctx.ClientIP()),
 			zap.String("path", ctx.Request.URL.Path),
 			zap.String("query", ctx.Request.URL.RawQuery),
-			// zap.ByteString("data", rawData),
+			data,
 		)
 
 		blw := &bodyLogWriter{
