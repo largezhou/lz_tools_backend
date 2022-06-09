@@ -59,7 +59,7 @@ func createConsoleWriter() zapcore.WriteSyncer {
 func createFileWriter() zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
 		Filename: "./logs/log.log",
-		MaxSize:  1,
+		MaxSize:  100,
 		MaxAge:   14,
 		Compress: false,
 	}
