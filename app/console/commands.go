@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var commands = []*cli.Command{
+var Commands = []*cli.Command{
 	NewMakeMigrationCommand(),
 	NewMigrateInstallCommand(),
 	NewMigrateRollbackCommand(),
