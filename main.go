@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/largezhou/lz_tools_backend/app/api"
 	"github.com/largezhou/lz_tools_backend/app/app_const"
-	"github.com/largezhou/lz_tools_backend/app/core"
+	"github.com/largezhou/lz_tools_backend/core"
 )
 
 func main() {

@@ -120,7 +120,7 @@ func (a *App) runServer(ctx context.Context) {
 
 	go func() {
 		logger.Info(ctx, "开始运行", zap.String("host", c.Host), zap.String("port", c.Port))
-		if err := srv.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)
 		}
 	}()
@@ -129,7 +129,7 @@ func (a *App) runServer(ctx context.Context) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
