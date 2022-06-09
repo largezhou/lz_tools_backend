@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/largezhou/lz_tools_backend/app/app_const"
 	"github.com/largezhou/lz_tools_backend/app/app_error"
+	"github.com/largezhou/lz_tools_backend/app/config"
 	"github.com/largezhou/lz_tools_backend/app/dto/code_dto"
 	"github.com/largezhou/lz_tools_backend/app/helper"
 	"github.com/largezhou/lz_tools_backend/app/logger"
@@ -45,7 +46,7 @@ func (cs *CodeService) GetCodeList(
 	if dto.Lng != 0 && dto.Lat != 0 {
 		locList, err := redisService.GeoRadius(ctx, getCodeGeoKey(userId), dto.Lng, dto.Lat, &redis.GeoRadiusQuery{
 			Unit:     "m",
-			Radius:   app_const.DistRange,
+			Radius:   config.Config.App.DistRange,
 			WithDist: true,
 			Sort:     "ASC",
 			Count:    10,

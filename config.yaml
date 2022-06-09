@@ -5,6 +5,7 @@ app:
   debug: ${APP_DEBUG:false}
   timezone: Asia/Shanghai
   key: ${APP_KEY:}
+  distRange: ${APP_DIST_RANGE:500}
 
 log:
   level: ${LOG_LEVEL:info}

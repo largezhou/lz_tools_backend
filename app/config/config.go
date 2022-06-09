@@ -9,19 +9,20 @@ import (
 )
 
 type config struct {
-	App    app    // 应用基础配置
-	Log    log    // 日志配置
-	Mysql  mysql  // mysql 配置
-	Redis  redis  // redis 配置
+	App   app   // 应用基础配置
+	Log   log   // 日志配置
+	Mysql mysql // mysql 配置
+	Redis redis // redis 配置
 }
 
 type app struct {
-	Host     string // 监听 IP
-	Port     string // 监听 端口
-	Env      string // 环境
-	Debug    bool   // 是否开启 debug
-	Timezone string // 时区
-	Key      string // 加密密钥
+	Host      string  // 监听 IP
+	Port      string  // 监听 端口
+	Env       string  // 环境
+	Debug     bool    // 是否开启 debug
+	Timezone  string  // 时区
+	Key       string  // 加密密钥
+	DistRange float64 // 定位范围
 }
 
 type log struct {
