@@ -19,6 +19,12 @@ func UsernameAuth() gin.HandlerFunc {
 			return
 		}
 
+		if len(username) < 3 || len(username) > 20 {
+			fail(ctx, app_error.InvalidParameter, "用户名长度为 3-20")
+			ctx.Abort()
+			return
+		}
+
 		user := &user_model.User{Username: username}
 		var err error
 		if user, err = user_model.UpdateOrCreateUserByUserInfo(ctx, user); err != nil {
