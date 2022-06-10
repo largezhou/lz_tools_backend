@@ -2,7 +2,9 @@ package user_model
 
 import (
 	"context"
+	"github.com/largezhou/lz_tools_backend/app/logger"
 	"github.com/largezhou/lz_tools_backend/app/model"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -30,13 +32,14 @@ func UpdateOrCreateUserByUserInfo(ctx context.Context, userInfo *User) (*User, e
 	db := model.DB.WithContext(ctx)
 
 	var result *gorm.DB
-	result = db.Where("username = ?", userInfo.Username).Updates(userInfo)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	if result.RowsAffected > 0 {
-		db.First(&userInfo, "username = ?", userInfo.Username)
-		return userInfo, nil
+	var user *User
+	if result = db.First(&user, "username = ?", userInfo.Username); result.Error == nil {
+		updateResult := db.Where("username = ?", userInfo.Username).Updates(userInfo)
+		if updateResult.Error != nil {
+			logger.Error(ctx, "用户更新失败", zap.Error(updateResult.Error))
+		}
+
+		return user, nil
 	}
 
 	if result = db.Create(&userInfo); result.Error != nil {

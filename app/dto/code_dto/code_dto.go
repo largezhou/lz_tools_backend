@@ -20,9 +20,9 @@ type GetCodeListDto struct {
 
 type SaveCodeDto struct {
 	Id    uint    `form:"id"`
-	Name  string  `form:"name" binding:"omitempty,gt=0"`
-	Lng   float64 `form:"lng" binding:"omitempty,gt=0"`
-	Lat   float64 `form:"lat" binding:"omitempty,gt=0"`
+	Name  string  `form:"name" binding:"required,gt=0"`
+	Lng   float64 `form:"lng" binding:"required,gt=0"`
+	Lat   float64 `form:"lat" binding:"required,gt=0"`
 	Often bool    `form:"often"`
 	File  *multipart.FileHeader
 }

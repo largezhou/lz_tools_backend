@@ -75,9 +75,6 @@ func (cs *CodeService) CreateCode(ctx context.Context, userId uint, dto code_dto
 	db := model.DB.WithContext(ctx)
 	var code *code_model.Code
 	dto.Name = strings.TrimSpace(dto.Name)
-	if dto.Name == "" || dto.Lng <= 0 || dto.Lat <= 0 {
-		return app_error.New("场所名或经纬度不能为空")
-	}
 	if dto.File == nil {
 		return app_error.New("需要上传场所码文件")
 	}
@@ -125,10 +122,6 @@ func (cs *CodeService) UpdateCode(ctx context.Context, userId uint, dto code_dto
 		Where("user_id = ?", userId).
 		First(&code); result.Error != nil {
 		return helper.ModelNotFound(result.Error, "场所码不存在")
-	}
-
-	if dto.Name == "" || dto.Lng <= 0 || dto.Lat <= 0 {
-		return app_error.New("场所名或经纬度不能为空")
 	}
 
 	code.Name = dto.Name
